@@ -3,12 +3,15 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { User } from '@/types';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@roadlifter.local');
-  const [password, setPassword] = useState('Admin123!');
+  const setSession = useAuthStore((state) => state.setSession);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,9 +21,8 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     try {
       const res = await api.post('/admin/login', { email, password });
-      const { token, user } = res.data;
-      localStorage.setItem('rl_token', token);
-      localStorage.setItem('rl_user', JSON.stringify(user));
+      const { token, user } = res.data as { token: string; user: User };
+      setSession(token, user);
       router.replace('/admin');
     } catch (err: unknown) {
       setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Admin login failed');

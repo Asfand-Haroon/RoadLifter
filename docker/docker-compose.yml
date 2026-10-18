@@ -1,18 +1,32 @@
+# RoadLifter development docker-compose
+#
+# Before running:
+#   1. Copy server/.env.example → server/.env and fill in real values
+#      (DATABASE_URL, JWT_SECRET, ADMIN_API_KEY, ADMIN_EMAIL, ADMIN_PASSWORD,
+#       FIREBASE_SERVICE_ACCOUNT_JSON)
+#   2. Copy client/.env.local.example → client/.env.local and fill in real values
+#      (NEXT_PUBLIC_FIREBASE_API_KEY, etc.)
+#
+# Secrets are read from the host environment / .env files and are NEVER
+# hard-coded here. Run:
+#   docker compose --env-file server/.env up
+# or export the variables in your shell before calling docker compose.
+
 services:
   postgres:
     image: postgres:16-alpine
     container_name: roadlifter_db
     environment:
-      POSTGRES_DB: roadlifter
-      POSTGRES_USER: roadlifter
-      POSTGRES_PASSWORD: roadlifter123
+      POSTGRES_DB: ${POSTGRES_DB:-roadlifter}
+      POSTGRES_USER: ${POSTGRES_USER:-roadlifter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ../db/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U roadlifter -d roadlifter']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-roadlifter} -d ${POSTGRES_DB:-roadlifter}']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -25,10 +39,18 @@ services:
     ports:
       - '5000:5000'
     environment:
-      DATABASE_URL: postgresql://roadlifter:roadlifter123@postgres:5432/roadlifter
-      JWT_SECRET: roadlifter_super_secret_jwt_key_2024
-      CLIENT_URL: http://localhost:3000
-      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ADMIN_API_KEY: ${ADMIN_API_KEY:?ADMIN_API_KEY is required}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL is required}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      # Firebase Admin SDK — paste the entire service-account JSON as a single-line string
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${FIREBASE_SERVICE_ACCOUNT_JSON:?FIREBASE_SERVICE_ACCOUNT_JSON is required}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      NODE_ENV: ${NODE_ENV:-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,8 +63,13 @@ services:
     ports:
       - '3000:3000'
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:5000
-      NEXT_PUBLIC_WS_URL: http://localhost:5000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-http://localhost:5000}
+      # Firebase Web SDK config (public — safe to pass as build-time env)
+      NEXT_PUBLIC_FIREBASE_API_KEY: ${NEXT_PUBLIC_FIREBASE_API_KEY:?NEXT_PUBLIC_FIREBASE_API_KEY is required}
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:?NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is required}
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${NEXT_PUBLIC_FIREBASE_PROJECT_ID:?NEXT_PUBLIC_FIREBASE_PROJECT_ID is required}
+      NEXT_PUBLIC_FIREBASE_APP_ID: ${NEXT_PUBLIC_FIREBASE_APP_ID:?NEXT_PUBLIC_FIREBASE_APP_ID is required}
     depends_on:
       - server
 

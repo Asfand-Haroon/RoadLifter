@@ -181,7 +181,13 @@ const completeGoogleProfile = async (req, res) => {
     if (client) await client.query('ROLLBACK').catch(() => {});
     if (err.status) return res.status(err.status).json({ error: err.message });
     if (err.code === '23505') {
-      return res.status(409).json({ error: 'This Google account is already in use. Please sign in again.' });
+      // Distinguish email uniqueness violation from other unique constraint failures
+      if (err.constraint && err.constraint.includes('email')) {
+        return res.status(409).json({
+          error: 'An account with this email address already exists. Please sign in with your existing account instead.',
+        });
+      }
+      return res.status(409).json({ error: 'This Google account is already registered. Please sign in again.' });
     }
     console.error('Complete Google profile error:', err);
     res.status(500).json({ error: 'Unable to create your RoadLifter account' });

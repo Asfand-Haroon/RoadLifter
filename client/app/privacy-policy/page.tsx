@@ -7,7 +7,7 @@ const sections = [
   },
   {
     title: '2. Information We Collect',
-    body: 'We collect account details such as name, email address, password hash, phone number, and role (driver or shipper). Driver accounts may include verification details such as legal name, ID number, vehicle number, license details, and license expiry. We also collect live location data when a user permits access to geolocation, shipment information, ratings, and moderation data such as blacklist status or review outcomes.',
+    body: 'We collect account details such as name, email address, phone number, and role (driver or shipper). Authentication is handled exclusively through Google Sign-In via Firebase; we never store passwords or password hashes. Driver accounts may include verification details such as legal name, ID number, vehicle number, license details, and license expiry. We also collect live location data when a user permits access to geolocation, shipment information, ratings, and moderation data such as blacklist status or review outcomes.',
   },
   {
     title: '3. How We Use Data',

@@ -593,7 +593,7 @@ export default function HomePage() {
                 { label: 'Careers', href: '/' },
                 { label: 'Blog', href: '/' },
                 { label: 'Privacy Policy', href: '/privacy-policy' },
-                { label: 'Terms of Service', href: '/' },
+                { label: 'Terms of Service', href: '/terms' },
               ].map((l) => (
                 <li key={l.label}>
                   <Link href={l.href} style={{ color: 'var(--color-text-faint)', fontSize: '0.875rem', textDecoration: 'none' }}>{l.label}</Link>
@@ -628,7 +628,7 @@ export default function HomePage() {
           <div style={{ display: 'flex', gap: 24 }}>
             {[
               { label: 'Privacy', href: '/privacy-policy' },
-              { label: 'Terms', href: '/' },
+              { label: 'Terms', href: '/terms' },
               { label: 'Cookies', href: '/' },
             ].map((l) => (
               <Link key={l.label} href={l.href} style={{ color: 'var(--color-text-faint)', fontSize: '0.8125rem', textDecoration: 'none' }}>{l.label}</Link>

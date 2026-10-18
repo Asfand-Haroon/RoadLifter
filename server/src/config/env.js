@@ -4,8 +4,8 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
 const JWT_SECRET = process.env.JWT_SECRET || (NODE_ENV === 'production' ? '' : 'roadlifter-local-development-secret');
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@roadlifter.local';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin123!';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const FIREBASE_SERVICE_ACCOUNT_JSON = process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '';
 let FIREBASE_SERVICE_ACCOUNT = null;
 const configuredOrigins = process.env.ALLOWED_ORIGINS
@@ -34,6 +34,14 @@ if (NODE_ENV === 'production' && JWT_SECRET.length < 32) {
 
 if (NODE_ENV === 'production' && ADMIN_API_KEY.length < 32) {
   throw new Error('ADMIN_API_KEY must be set to at least 32 characters in production');
+}
+
+if (NODE_ENV === 'production' && !ADMIN_EMAIL) {
+  throw new Error('ADMIN_EMAIL is required in production');
+}
+
+if (NODE_ENV === 'production' && !ADMIN_PASSWORD) {
+  throw new Error('ADMIN_PASSWORD is required in production');
 }
 
 if (NODE_ENV === 'production' && !FIREBASE_SERVICE_ACCOUNT_JSON) {
