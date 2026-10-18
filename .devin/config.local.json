@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(ls)",
+      "Exec(Get-ChildItem)",
+      "Exec(docker volume)",
+      "Exec(wsl)"
+    ]
+  }
+}

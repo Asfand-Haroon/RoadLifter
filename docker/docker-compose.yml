@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: roadlifter_db
+    environment:
+      POSTGRES_DB: roadlifter
+      POSTGRES_USER: roadlifter
+      POSTGRES_PASSWORD: roadlifter123
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../db/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U roadlifter -d roadlifter']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: ..
+      dockerfile: server/DockerFile
+    container_name: roadlifter_server
+    ports:
+      - '5000:5000'
+    environment:
+      DATABASE_URL: postgresql://roadlifter:roadlifter123@postgres:5432/roadlifter
+      JWT_SECRET: roadlifter_super_secret_jwt_key_2024
+      CLIENT_URL: http://localhost:3000
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  client:
+    build:
+      context: ../client
+      dockerfile: DockerFile
+    container_name: roadlifter_client
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5000
+      NEXT_PUBLIC_WS_URL: http://localhost:5000
+    depends_on:
+      - server
+
+volumes:
+  postgres_data:
