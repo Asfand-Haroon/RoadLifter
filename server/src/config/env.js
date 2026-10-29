@@ -17,6 +17,31 @@ const ALLOWED_ORIGINS = configuredOrigins?.length
   : NODE_ENV === 'production'
     ? [CLIENT_URL]
     : [CLIENT_URL, 'http://localhost:3000', 'http://127.0.0.1:3000'];
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  if (NODE_ENV !== 'production') {
+    try {
+      const url = new URL(origin);
+      const host = url.hostname;
+      if (
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        host.endsWith('.ngrok-free.dev') ||
+        host.endsWith('.ngrok-free.app') ||
+        host.endsWith('.ngrok.io') ||
+        host.endsWith('.loca.lt')
+      ) {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  }
+  return false;
+};
+
 const trustProxyValue = process.env.TRUST_PROXY;
 const TRUST_PROXY = trustProxyValue === 'true'
   ? 1
@@ -81,4 +106,5 @@ module.exports = {
   CLIENT_URL,
   ALLOWED_ORIGINS,
   TRUST_PROXY,
+  isOriginAllowed,
 };

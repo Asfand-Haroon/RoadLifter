@@ -1,15 +1,32 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+export const getApiBaseUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    // In browser, use current origin so Next.js proxies to backend without needing a second tunnel
+    return `${window.location.origin}/api`;
+  }
+  // During SSR
+  return process.env.INTERNAL_BACKEND_URL ? `${process.env.INTERNAL_BACKEND_URL}/api` : 'http://localhost:5000/api';
+};
 
 const api = axios.create({
-  baseURL: `${API_URL}/api`,
-  headers: { 'Content-Type': 'application/json' },
-  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'bypass-tunnel-reminder': 'true',
+    'ngrok-skip-browser-warning': 'true',
+  },
+  timeout: 15000,
 });
 
-// Attach JWT token to every request
+// Attach base URL and JWT token to every request
 api.interceptors.request.use((config) => {
+  if (!config.baseURL) {
+    config.baseURL = getApiBaseUrl();
+  }
+  config.headers = config.headers || {};
+  config.headers['bypass-tunnel-reminder'] = 'true';
+  config.headers['ngrok-skip-browser-warning'] = 'true';
+
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('rl_token');
     if (token) {

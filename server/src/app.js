@@ -26,10 +26,17 @@ const createApp = () => {
 
   // CORS
   app.use(cors({
-    origin: (origin, callback) => callback(null, !origin || env.ALLOWED_ORIGINS.includes(origin)),
+    origin: (origin, callback) => callback(null, env.isOriginAllowed(origin)),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'bypass-tunnel-reminder',
+      'ngrok-skip-browser-warning',
+      'x-requested-with',
+      'Accept',
+    ],
   }));
 
   // Request logging

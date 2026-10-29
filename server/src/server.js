@@ -13,8 +13,16 @@ const startServer = async () => {
   // Initialize Socket.io
   const io = new Server(httpServer, {
     cors: {
-      origin: (origin, callback) => callback(null, !origin || env.ALLOWED_ORIGINS.includes(origin)),
+      origin: (origin, callback) => callback(null, env.isOriginAllowed(origin)),
       methods: ['GET', 'POST'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'bypass-tunnel-reminder',
+        'ngrok-skip-browser-warning',
+        'x-requested-with',
+        'Accept',
+      ],
       credentials: true,
     },
     transports: ['websocket', 'polling'],

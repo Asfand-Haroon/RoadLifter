@@ -1,11 +1,26 @@
 /** @type {import('next').NextConfig} */
+const backendUrl = process.env.INTERNAL_BACKEND_URL || 'http://localhost:5000';
+
 const nextConfig = {
   reactStrictMode: true,
+  allowedDevOrigins: [
+    'sultry-palm-wages.ngrok-free.dev',
+    'localhost:3000',
+    '127.0.0.1:3000',
+    '*.ngrok-free.dev',
+    '*.ngrok-free.app',
+    '*.ngrok.io',
+    '*.loca.lt',
+  ],
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/:path*`,
+        destination: `${backendUrl}/api/:path*`,
+      },
+      {
+        source: '/socket.io/:path*',
+        destination: `${backendUrl}/socket.io/:path*`,
       },
     ];
   },
